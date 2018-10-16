@@ -47,6 +47,9 @@ public class DemoVerifier extends AbstractVerifier {
 		ACCESS_MAP.put(Verify.class.getSimpleName(), getAccessMap(Verify.class.getAnnotation(MethodAccess.class)));
 		ACCESS_MAP.put(Login.class.getSimpleName(), getAccessMap(Login.class.getAnnotation(MethodAccess.class)));
 		ACCESS_MAP.put(Contract.class.getSimpleName(), getAccessMap(Contract.class.getAnnotation(MethodAccess.class)));
+		ACCESS_MAP.put("Predecuserlist", getAccessMap(Contract.class.getAnnotation(MethodAccess.class)));
+
+		ACCESS_MAP.put("Predecheadvo", getAccessMap(Contract.class.getAnnotation(MethodAccess.class)));
 	}
 
 

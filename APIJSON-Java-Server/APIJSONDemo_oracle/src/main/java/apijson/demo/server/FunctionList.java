@@ -25,6 +25,16 @@ import zuo.biao.apijson.server.NotNull;
  */
 public interface FunctionList {
 
+	/**
+	 * greater than
+	 * @param request
+	 * @param obj1
+	 * @param obj2
+	 * @return
+	 */
+	public  boolean gt(@NotNull JSONObject request, String obj1,String obj2);
+
+	public  boolean gte(@NotNull JSONObject request, String obj1,String obj2);
 	//判断是否为空 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	/**判断array是否为空
 	 * @param request

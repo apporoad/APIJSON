@@ -50,7 +50,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
-import com.sun.xml.internal.ws.util.StringUtils;
+//import com.sun.xml.internal.ws.util.StringUtils;
 
 import zuo.biao.apijson.Log;
 import zuo.biao.apijson.RequestMethod;
@@ -571,10 +571,10 @@ public abstract class AbstractSQLConfig implements SQLConfig {
 						if (isKeyPrefix()) {
 							ckeys[j] = tableAlias + "." + origin;
 							if (isColumn) {
-								ckeys[j] += " AS `" + (isMain() ? "" : tableAlias + ".") + (StringUtil.isEmpty(alias, true) ? origin : alias) + "`";
+								ckeys[j] += " AS \"" + (isMain() ? "" : tableAlias + ".") + (StringUtil.isEmpty(alias, true) ? origin : alias) + "\"";
 							}
 						} else {
-							ckeys[j] = origin + (StringUtil.isEmpty(alias, true) ? "" : " AS `" + alias + "`");
+							ckeys[j] = origin + (StringUtil.isEmpty(alias, true) ? "" : " AS \"" + alias + "\"");
 						}
 					}
 					//				}
@@ -604,10 +604,10 @@ public abstract class AbstractSQLConfig implements SQLConfig {
 
 					String origin = method + "(" + StringUtil.getString(ckeys) + ")";
 					if (isKeyPrefix()) {
-						keys[i] = origin + " AS `" + (isMain() ? "" : tableAlias + ".") + (StringUtil.isEmpty(alias, true) ? method : alias) + "`";
+						keys[i] = origin + " AS \"" + (isMain() ? "" : tableAlias + ".") + (StringUtil.isEmpty(alias, true) ? method : alias) + "\"";
 					}
 					else {
-						keys[i] = origin + (StringUtil.isEmpty(alias, true) ? "" : " AS `" + alias + "`");
+						keys[i] = origin + (StringUtil.isEmpty(alias, true) ? "" : " AS \"" + alias + "\"");
 					}
 				}
 
@@ -1243,7 +1243,7 @@ public abstract class AbstractSQLConfig implements SQLConfig {
 	private static final Pattern PATTERN_HAVING;
 	private static final Pattern PATTERN_HAVING_SUFFIX;
 	static {
-		PATTERN_RANGE = Pattern.compile("^[0-9%!=<>,]+$"); // ^[a-zA-Z0-9_*%!=<>(),"]+$ 导致 exists(select*from(Comment)) 通过！
+		PATTERN_RANGE = Pattern.compile("^[0-9%!=<>,`-]+$"); // ^[a-zA-Z0-9_*%!=<>(),"]+$ 导致 exists(select*from(Comment)) 通过！
 		PATTERN_HAVING = Pattern.compile("^[A-Za-z0-9%!=<>]+$"); //TODO 改成更好的正则，校验前面为单词，中间为操作符，后面为值
 		PATTERN_HAVING_SUFFIX = Pattern.compile("^[0-9%!=<>]+$"); // ^[a-zA-Z0-9_*%!=<>(),"]+$ 导致 exists(select*from(Comment)) 通过！
 	}
@@ -1275,9 +1275,10 @@ public abstract class AbstractSQLConfig implements SQLConfig {
 		}
 		if (range instanceof String) {//非Number类型需要客户端拼接成 < 'value0', >= 'value1'这种
 			if (isPrepared() && PATTERN_RANGE.matcher((String) range).matches() == false) {
-				throw new UnsupportedOperationException("字符串 " + range + " 不合法！预编译模式下 key{}:\"condition\" 中 condition 必须符合正则表达式 ^[0-9%!=<>,]+$ ！不允许空格！");
+				throw new UnsupportedOperationException("字符串 " + range + " 不合法！预编译模式下 key{}:\"condition\" 中 condition 必须符合正则表达式 ^[0-9%!=<>,`]+$ ！不允许空格！");
 			}
-
+			// replace `
+			range = range.toString().replaceAll("`", "'" );
 			String[] conditions = StringUtil.split((String) range);
 			String condition = "";
 			if (conditions != null) {
@@ -1547,7 +1548,13 @@ public abstract class AbstractSQLConfig implements SQLConfig {
 
 		//no need to optimize
 		//		if (config.getPage() <= 0 || ID.equals(column.trim())) {
-		return condition + config.getLimitString();
+
+		//oracle
+		//getPage(), getCount()
+
+		String limit = (where.isEmpty() ? " " : " AND") + " rownum <= " + (config.getPage() + 1) *  config.getCount();
+		return condition +  (config.getCount() <= 0 ? "" : limit ) ;
+		//config.getLimitString();
 		//		}
 		//
 		//

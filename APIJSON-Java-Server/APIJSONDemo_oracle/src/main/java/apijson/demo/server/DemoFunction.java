@@ -252,6 +252,17 @@ public class DemoFunction extends Function implements FunctionList {
 	}
 
 	//判断是否为空 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+	@Override
+	public boolean gt(JSONObject request, String obj1, String obj2) {
+		return obj1.compareTo(obj2) > 0;
+	}
+
+	@Override
+	public boolean gte(JSONObject request, String obj1, String obj2) {
+		return obj1.compareTo(obj2) >= 0;
+	}
+
 	/**判断array是否为空
 	 * @param request
 	 * @param array
